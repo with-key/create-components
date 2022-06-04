@@ -1,9 +1,14 @@
-import React, { Fragment } from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
 import styled from "styled-components";
 import { useInfiniteQuery } from "react-query";
+import { useInView } from "react-intersection-observer";
+
+// react-qeury + react-intersection-observer
 
 const InfiniteScroll = () => {
+  const { ref, inView, entry } = useInView({});
+
   // useInfiniteQuery Fetcher function
   const fetchProjects = async ({ pageParam = 1 }) => {
     const { data } = await axios.get(
@@ -23,55 +28,62 @@ const InfiniteScroll = () => {
     status,
   } = useInfiniteQuery("projects", fetchProjects, {
     refetchOnWindowFocus: false,
+    enabled: inView,
     getNextPageParam: (lastPage, allPages) => {
-      return lastPage.nextPage; //  === return 값은 다은 페이지가 호출될 때의 pageParam
+      return lastPage.nextPage; //  === return 값은 다음 페이지가 호출될 때의 pageParam
     },
   });
 
-  console.log(data);
-
-  // console.log("isFetchingNextPage :>> ", isFetchingNextPage);
-  // console.log("data :>> ", data);
-
-  console.log(status);
+  useEffect(() => {
+    if (inView) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, inView]);
 
   if (status === "loading") return <div>is Loading.....!</div>;
   return (
     <>
-      <button
-        onClick={() => {
-          fetchNextPage();
-        }}
-      >
-        버튼
-      </button>
-      {data?.pages.map((page) => {
-        return page.data.map((todo: any) => {
-          return (
-            <Fragment key={todo.id}>
-              <Stack>
-                <div>{todo.id}</div>
-                <div>{todo.title}</div>
-              </Stack>
-            </Fragment>
-          );
-        });
-      })}
+      <StScrollWrapper>
+        <Grid>
+          {data?.pages.map((page) => {
+            return page.data.map((todo: any) => {
+              return (
+                <Card key={todo.id}>
+                  <div>{todo.id}</div>
+                  <div>{todo.title}</div>
+                </Card>
+              );
+            });
+          })}
+        </Grid>
+        <div ref={ref} style={{ border: "1px solid red" }}>
+          {isFetchingNextPage && <Loader>로딩중</Loader>}
+        </div>
+      </StScrollWrapper>
     </>
   );
 };
 
 export default InfiniteScroll;
 
-const Stack = styled.div`
-  display: flex;
-  gap: 24px;
+const StScrollWrapper = styled.div`
+  width: 500px;
+  height: 400px;
+  border: 1px solid blue;
+  overflow-y: scroll;
+`;
 
-  div {
-    border: 1px solid #eee;
-    padding: 12px;
-    :nth-child(1) {
-      width: 100px;
-    }
-  }
+const Loader = styled.div`
+  height: 50px;
+  border: 1px solid red;
+`;
+
+const Card = styled.div`
+  border: 1px teal solid;
+`;
+
+const Grid = styled.div`
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
 `;

@@ -1,7 +1,7 @@
 import React from "react";
 
-const Home = () => {
-  return <div>React Components Play Ground!</div>;
+const index = () => {
+  return <div>index</div>;
 };
 
-export default Home;
+export default index;
