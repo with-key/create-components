@@ -1,15 +1,15 @@
-import React, { useState } from "react";
+import React, { HTMLAttributes, useState } from "react";
 
 type PropsFormInput = {
   format?: "iino" | "normal" | "price";
   defaultValue: string;
-  numeric: boolean;
+  inputMode: HTMLAttributes<HTMLInputElement>["inputMode"];
 };
 
 const FormInput = ({
   format = "normal",
   defaultValue,
-  numeric,
+  inputMode,
 }: PropsFormInput) => {
   const [value, setValue] = useState(defaultValue);
 
@@ -47,7 +47,7 @@ const FormInput = ({
   return (
     <input
       type="test"
-      inputMode={numeric ? "numeric" : "none"}
+      inputMode={inputMode}
       value={value}
       onChange={(event) => onChangeIinoHandler(event, setValue)}
     />
