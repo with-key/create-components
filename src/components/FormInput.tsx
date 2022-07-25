@@ -33,6 +33,9 @@ const FormInput = ({
         return;
       }
     } else if (format === "price") {
+      if (value.length >= 16) {
+        return;
+      }
       const proiceLogic = /^[0-9\s+,+]*$/g;
       if (proiceLogic.test(value)) {
         return setState(Number(value.replaceAll(",", "")).toLocaleString("en"));
