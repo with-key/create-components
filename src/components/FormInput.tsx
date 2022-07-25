@@ -1,57 +1,56 @@
 import React, { useState } from "react";
 
-const FormInput = () => {
-  const [value, setValue] = useState("");
+type PropsFormInput = {
+  format?: "iino" | "normal" | "price";
+  defaultValue: string;
+  numeric: boolean;
+};
 
-  /**
-   *
-   * @param event
-   * @param setState
-   * @returns '-'을 포함한 주민등록번호
-   */
+const FormInput = ({
+  format = "normal",
+  defaultValue,
+  numeric,
+}: PropsFormInput) => {
+  const [value, setValue] = useState(defaultValue);
+
   const onChangeIinoHandler = (
     event: React.ChangeEvent<HTMLInputElement>,
     setState: React.Dispatch<React.SetStateAction<string>>
   ) => {
-    if (event.target.value.length === 15) {
-      return;
-    }
-
-    if (event.target.value.length >= 6) {
-      const front = event.target.value.slice(0, 6);
-      const back = event.target.value.slice(7);
-
-      return setState(front + "-" + back);
-    }
-
-    setState(event.target.value);
-  };
-
-  /**
-   *
-   * @param event
-   * @param setState
-   * @returns ','를 포함한 숫자
-   */
-  const onChangeCommaHadler = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    setState: React.Dispatch<React.SetStateAction<string>>
-  ) => {
     const { value } = event.target;
-    const logic = /(^[0-9]*$)|([,])/;
-    if (logic.test(value)) {
-      return setState(Number(value.replaceAll(",", "")).toLocaleString("en"));
+
+    if (format === "iino") {
+      const iinoLogic = /^[0-9\s+-]*$/g;
+      if (value.length >= 15) {
+        return;
+      }
+
+      if (iinoLogic.test(value)) {
+        return setState(
+          value.replace(/-/g, "").replace(/(\d{6})(\d{7})/g, "$1-$2")
+        );
+      } else {
+        return;
+      }
+    } else if (format === "price") {
+      const proiceLogic = /^[0-9\s+,+]*$/g;
+      if (proiceLogic.test(value)) {
+        return setState(Number(value.replaceAll(",", "")).toLocaleString("en"));
+      } else {
+        return;
+      }
+    } else {
+      setState(value);
     }
   };
 
   return (
-    <div>
-      <input
-        type="text"
-        value={value}
-        onChange={(event) => onChangeCommaHadler(event, setValue)}
-      />
-    </div>
+    <input
+      type="test"
+      inputMode={numeric ? "numeric" : "none"}
+      value={value}
+      onChange={(event) => onChangeIinoHandler(event, setValue)}
+    />
   );
 };
 
